@@ -1,0 +1,20 @@
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://10.159.55.40:5432/netoptdatabase?reWriteBatchedInserts=true
+    username: airetina #gpadmin Gp_Hn010159
+    password: a_9R92gqKT
+    hikari:
+      data-source-properties:
+        reWriteBatchedInserts: true
+      minimum-idle: 1
+      maximum-pool-size: 200
+      max-lifetime: 1200000 # 20分钟回收
+  jdbc:
+    template:
+      fetch-size: 1000
+
+aggregate-task:
+  #remove-null-enci: false # 默认为true 关闭需主动配置为false
+  thread-pool-size: 200 # 线程池数量 默认20

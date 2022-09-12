@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+scan ：当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。
+scanPeriod ：设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒当scan为true时，此属性生效。默认的时间间隔为1分钟。
+debug：当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。
+-->
+<configuration scan="false" scanPeriod="60 seconds" debug="false">
+    <!-- 定义日志的根目录 -->
+    <!--<property name="LOG_HOME" value="/data/log/java_service/net-opt-platform/datagather/"/>-->
+    <property name="LOG_PATH" value="${LOG_PATH:-/data/log/java_service/net-opt-platform/datagather/}"/>
+    <property name="LOG_HOME" value="${LOG_PATH}"/>
+    <springProfile name="prod">
+        <property name="LOG_HOME" value="/home/aiuser/retina/log/java_service/net-opt-platform/datagather/"/>
+    </springProfile>
+    <property name="maxHistory" value="30"/>
+    <property name="maxFileSize" value="100MB"/>
+    <property name="totalSizeCap" value="10GB"/>
+    <property name="pattern"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) - %cyan(%-30logger{30}):%boldMagenta(%line) %msg%n"/>
+    <!-- 定义日志文件名称 -->
+    <property name="allName" value="all"/>
+    <property name="errorName" value="error"/>
+    <property name="warnName" value="warn"/>
+
+    <!-- 控制台输出 -->
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>${pattern}</pattern>
+        </layout>
+    </appender>
+
+    <!--all log file-->
+    <appender name="allAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${allName}.log</file>
+        <encoder>
+            <pattern>${pattern}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+        <!--
+        当发生滚动时，决定 RollingFileAppender 的行为，涉及文件移动和重命名
+        TimeBasedRollingPolicy： 最常用的滚动策略，它根据时间来制定滚动策略，既负责滚动也负责触发滚动。
+        -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <maxHistory>${maxHistory}</maxHistory>
+            <totalSizeCap>${totalSizeCap}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <fileNamePattern>${LOG_HOME}/${allName}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+    <!--error log file-->
+    <appender name="errorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${errorName}.log</file>
+        <encoder>
+            <pattern>${pattern}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <maxHistory>${maxHistory}</maxHistory>
+            <totalSizeCap>${totalSizeCap}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <fileNamePattern>${LOG_HOME}/${errorName}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <!-- warn log file-->
+    <appender name="warnAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${warnName}.log</file>
+        <encoder>
+            <pattern>${pattern}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <maxHistory>${maxHistory}</maxHistory>
+            <totalSizeCap>${totalSizeCap}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <fileNamePattern>${LOG_HOME}/${warnName}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <!--aggregate log file-->
+    <appender name="aggregateAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/agg-task.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread]- %msg%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+        <!-- "%d{yyyy-MM-dd HH:mm:ss.SSS} (%-5level) ([%thread])-(%-30logger{30}):(%line) %msg%n" -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <maxHistory>${maxHistory}</maxHistory>
+            <totalSizeCap>${totalSizeCap}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <fileNamePattern>${LOG_HOME}/agg-task-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <!--
+		logger主要用于存放日志对象，也可以定义日志类型、级别
+		name：表示匹配的logger类型前缀，也就是包的前半部分
+		level：要记录的日志级别，包括 TRACE < DEBUG < INFO < WARN < ERROR
+		additivity：作用在于children-logger是否使用 rootLogger配置的appender进行输出，
+		false：表示只用当前logger的appender-ref，
+		true：表示当前logger的appender-ref和rootLogger的appender-ref都有效
+    -->
+    <springProfile name="dev">
+        <logger name="com.asiainfo.retina" level="DEBUG" additivity="true"/>
+    </springProfile>
+    <logger name="org.springframework" level="INFO" additivity="true"/>
+
+    <logger name="aggregateLogger" additivity="false" level="INFO">
+        <appender-ref ref="aggregateAppender"/>
+    </logger>
+
+    <springProfile name="dev">
+        <logger name="aggregateLogger" additivity="true" level="INFO">
+            <appender-ref ref="aggregateAppender"/>
+        </logger>
+    </springProfile>
+
+    <!--
+    root与logger是父子关系，没有特别定义则默认为root，任何一个类只会和一个logger对应，
+    要么是定义的logger，要么是root，判断的关键在于找到这个logger，然后判断这个logger的appender和level。
+    -->
+    <root level="info">
+        <appender-ref ref="stdout"/>
+        <appender-ref ref="allAppender"/>
+        <appender-ref ref="errorAppender"/>
+        <appender-ref ref="warnAppender"/>
+    </root>
+</configuration>

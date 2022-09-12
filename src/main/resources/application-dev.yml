@@ -1,0 +1,20 @@
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://10.1.192.132:6432/datahandler?reWriteBatchedInserts=true
+    username: gpadmin
+    password: retina
+    hikari:
+      minimum-idle: 1
+      idle-timeout: 300000 # 5 minutes
+      #maximum-pool-size: 200
+      #max-lifetime: 1200000 # 20分钟回收
+  jdbc:
+    template:
+      fetch-size: 1000
+
+aggregate-task:
+  #remove-null-enci: false # 默认为true 关闭需主动配置为false
+  #thread-pool-size: 20 # 线程池数量 默认20
+  auto-schedule-task: false # 是否自动启动调度任务 默认true
